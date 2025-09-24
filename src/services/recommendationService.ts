@@ -7,17 +7,24 @@ class RecommendationService {
 
   // Get all active (non-expired) recommendations
   async getActiveRecommendations(): Promise<StockRecommendation[]> {
-    const q = query(
-      collection(db, this.collectionName),
-      where('status', 'in', ['pending', 'executed']),
-      orderBy('createdAt', 'desc')
-    );
+    try {
+      // First order by createdAt, then filter in memory
+      const q = query(
+        collection(db, this.collectionName),
+        orderBy('createdAt', 'desc')
+      );
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as StockRecommendation));
+      const snapshot = await getDocs(q);
+      return snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as StockRecommendation))
+        .filter(rec => rec.status === 'pending' || rec.status === 'executed');
+    } catch (error) {
+      console.error('Error fetching active recommendations:', error);
+      return [];
+    }
   }
 
   // Get recommendations by status
@@ -62,34 +69,49 @@ class RecommendationService {
 
   // Get recommendations within a date range
   async getRecommendationsInDateRange(startDate: Date, endDate: Date): Promise<StockRecommendation[]> {
-    const q = query(
-      collection(db, this.collectionName),
-      where('createdAt', '>=', startDate),
-      where('createdAt', '<=', endDate),
-      orderBy('createdAt', 'desc')
-    );
+    try {
+      // Use a single inequality filter and filter the rest in memory
+      const q = query(
+        collection(db, this.collectionName),
+        where('createdAt', '>=', startDate),
+        orderBy('createdAt', 'desc')
+      );
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as StockRecommendation));
+      const snapshot = await getDocs(q);
+      const endTimestamp = endDate.getTime();
+      return snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as StockRecommendation))
+        .filter(rec => (rec.createdAt as any).toDate().getTime() <= endTimestamp);
+    } catch (error) {
+      console.error('Error fetching recommendations by date range:', error);
+      return [];
+    }
   }
 
   // Get recommendations by confidence threshold
   async getRecommendationsByConfidence(minConfidence: number): Promise<StockRecommendation[]> {
-    const q = query(
-      collection(db, this.collectionName),
-      where('status', '==', 'pending'),
-      where('confidence', '>=', minConfidence),
-      orderBy('createdAt', 'desc')
-    );
+    try {
+      // First get all pending recommendations, then filter by confidence in memory
+      const q = query(
+        collection(db, this.collectionName),
+        where('status', '==', 'pending'),
+        orderBy('createdAt', 'desc')
+      );
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as StockRecommendation));
+      const snapshot = await getDocs(q);
+      return snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as StockRecommendation))
+        .filter(rec => rec.confidence >= minConfidence);
+    } catch (error) {
+      console.error('Error fetching recommendations by confidence:', error);
+      return [];
+    }
   }
 }
 

@@ -1,114 +1,46 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
 const Header: React.FC = () => {
-  const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { currentUser, signOut } = useAuth();
 
-  const isActive = (path: string) => {
-    return location.pathname === path ? 'nav-link active' : 'nav-link';
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  const navigationItems = [
-    { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/transactions', label: 'Transactions', icon: '📈' },
-    { path: '/recommendations', label: 'Recommendations', icon: '🎯' },
-    { path: '/admin', label: 'Admin', icon: '⚙️' },
-  ];
 
   return (
     <header className="header">
       <div className="header-content">
-        <Link to="/" className="logo" onClick={closeMobileMenu}>
+        <Link to="/" className="logo">
           <div className="logo-content">
             <span className="logo-icon">💰</span>
             <h1>MODA Portfolio Manager</h1>
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="nav desktop-nav">
-          {navigationItems.map((item) => (
-            <Link 
-              key={item.path}
-              to={item.path} 
-              className={isActive(item.path)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              {item.label}
+        <div className="user-info">
+          {currentUser ? (
+            <>
+              <div className="user-details">
+                <span className="user-email">{currentUser.email}</span>
+                <span className="user-role">{currentUser.role}</span>
+              </div>
+              <button onClick={handleSignOut} className="sign-out-button">
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="sign-in-button">
+              Sign In
             </Link>
-          ))}
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <button 
-          className="mobile-menu-button"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle mobile menu"
-        >
-          <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </button>
-
-        {/* Mobile Navigation */}
-        <nav className={`nav mobile-nav ${isMobileMenuOpen ? 'open' : ''}`}>
-          <div className="mobile-nav-content">
-            {navigationItems.map((item) => (
-              <Link 
-                key={item.path}
-                to={item.path} 
-                className={isActive(item.path)}
-                onClick={closeMobileMenu}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-            
-            {/* Additional Menu Items */}
-            <div className="menu-divider"></div>
-            <div className="menu-section">
-              <h3 className="menu-section-title">Quick Actions</h3>
-              <button className="menu-action-btn">
-                <span className="nav-icon">➕</span>
-                Add Stock
-              </button>
-              <button className="menu-action-btn">
-                <span className="nav-icon">💱</span>
-                New Transaction
-              </button>
-            </div>
-            
-            <div className="menu-section">
-              <h3 className="menu-section-title">Settings</h3>
-              <button className="menu-action-btn">
-                <span className="nav-icon">⚙️</span>
-                Preferences
-              </button>
-              <button className="menu-action-btn">
-                <span className="nav-icon">👤</span>
-                Profile
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        {/* Mobile Menu Overlay */}
-        {isMobileMenuOpen && (
-          <div className="mobile-menu-overlay" onClick={closeMobileMenu}></div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

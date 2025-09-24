@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './Header';
+import SecondaryNav from './SecondaryNav';
 import './Layout.css';
 
 interface LayoutProps {
@@ -10,6 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="layout">
       <Header />
+      <SecondaryNav />
       <main className="main-content">
         <div className="container">
           {children}

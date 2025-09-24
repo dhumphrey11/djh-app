@@ -50,6 +50,14 @@ export interface DashboardData extends PortfolioSummary {
   recentCashTransactions: CashTransaction[];
 }
 
+export interface User {
+  id: string;  // matches auth uid
+  email: string;
+  role: 'admin' | 'user';
+  createdAt: Timestamp;
+  lastLoginAt: Timestamp;
+}
+
 export interface StockRecommendation {
   id: string;
   stockSymbol: string;
