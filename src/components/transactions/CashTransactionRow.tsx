@@ -1,9 +1,9 @@
 import React from 'react';
-import { Transaction } from '../../types';
+import { CashTransaction } from '../../types';
 import './TransactionRow.css';
 
-interface TransactionRowProps {
-  transaction: Transaction;
+interface CashTransactionRowProps {
+  transaction: CashTransaction;
 }
 
 const formatCurrency = (amount: number): string => {
@@ -23,19 +23,17 @@ const formatDate = (timestamp: any): string => {
   });
 };
 
-const TransactionRow: React.FC<TransactionRowProps> = ({ transaction }) => {
-  const totalAmount = transaction.numberOfShares * transaction.price;
-
+const CashTransactionRow: React.FC<CashTransactionRowProps> = ({ transaction }) => {
   return (
     <tr className={`TransactionRow ${transaction.transactionType.toLowerCase()}`}>
-      <td>{formatDate(transaction.transactionDateTime)}</td>
-      <td>{transaction.stockSymbol}</td>
+      <td>{formatDate(transaction.transactionDate)}</td>
+      <td>CASH</td>
       <td>{transaction.transactionType}</td>
-      <td>{transaction.numberOfShares}</td>
-      <td>{formatCurrency(transaction.price)}</td>
-      <td>{formatCurrency(totalAmount)}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>{formatCurrency(transaction.amount)}</td>
     </tr>
   );
 };
 
-export default TransactionRow;
+export default CashTransactionRow;

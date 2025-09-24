@@ -1,56 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import StatsCard from '../components/dashboard/StatsCard';
 import TransactionRow from '../components/transactions/TransactionRow';
-import { DashboardData, Transaction } from '../types';
+import CashTransactionRow from '../components/transactions/CashTransactionRow';
+import { transactionService } from '../services/transactionService';
+import { stockDataService } from '../services/stockDataService';
+import { cashService } from '../services/cashService';
+import { StockHolding, Transaction, CurrentStockData, CashTransaction, PortfolioSummary } from '../types';
 import './Dashboard.css';
 
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+};
+
 const Dashboard: React.FC = () => {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [holdings, setHoldings] = useState<StockHolding[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>([]);
+  const [portfolioSummary, setPortfolioSummary] = useState<PortfolioSummary | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mock data - replace with actual Firebase data fetching
-    const mockData: DashboardData = {
-      totalPortfolioValue: 125750.50,
-      totalGainLoss: 8920.25,
-      totalGainLossPercentage: 7.63,
-      portfolioCount: 3,
-      stockCount: 12,
-      recentTransactions: [
-        {
-          id: '1',
-          stockSymbol: 'AAPL',
-          stockName: 'Apple Inc.',
-          type: 'buy',
-          shares: 50,
-          pricePerShare: 150.25,
-          totalAmount: 7512.50,
-          date: '2025-09-20',
-        },
-        {
-          id: '2',
-          stockSymbol: 'GOOGL',
-          stockName: 'Alphabet Inc.',
-          type: 'sell',
-          shares: 10,
-          pricePerShare: 2750.00,
-          totalAmount: 27500.00,
-          date: '2025-09-18',
-        },
-      ],
+    const loadDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        // Load all data in parallel
+        const [stockData, recentStockTx, recentCashTx] = await Promise.all([
+          stockDataService.getAllStockData(),
+          transactionService.getRecentTransactions(5),
+          cashService.getRecentCashTransactions(5)
+        ]);
+
+        // Create a map of stock data for easy lookup
+        const stockDataMap = new Map<string, CurrentStockData>();
+        stockData.forEach(stock => stockDataMap.set(stock.stockSymbol, stock));
+
+        // Get portfolio summary (includes cash balance)
+        const summary = await transactionService.getPortfolioSummary(stockDataMap);
+        const currentHoldings = await transactionService.calculateHoldings(stockDataMap);
+
+        setHoldings(currentHoldings);
+        setTransactions(recentStockTx);
+        setCashTransactions(recentCashTx);
+        setPortfolioSummary(summary);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
-    setDashboardData(mockData);
+
+    loadDashboardData();
   }, []);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
 
-  if (!dashboardData) {
+
+  if (isLoading) {
     return <div className="loading">Loading dashboard...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Error loading dashboard: {error}</div>;
   }
 
   return (
@@ -60,26 +74,26 @@ const Dashboard: React.FC = () => {
         <p>Welcome back! Here's your portfolio overview.</p>
       </div>
 
-      <div className="stats-grid">
+      <div className="stats-cards">
         <StatsCard
           title="Total Portfolio Value"
-          value={formatCurrency(dashboardData.totalPortfolioValue)}
-          change={dashboardData.totalGainLossPercentage}
-          changeType={dashboardData.totalGainLoss >= 0 ? 'positive' : 'negative'}
+          value={formatCurrency((portfolioSummary?.totalPortfolioValue || 0))}
+        />
+        <StatsCard
+          title="Cash Balance"
+          value={formatCurrency((portfolioSummary?.cashBalance || 0))}
+        />
+        <StatsCard
+          title="Available Cash"
+          value={formatCurrency((portfolioSummary?.availableCash || 0))}
         />
         <StatsCard
           title="Total Gain/Loss"
-          value={formatCurrency(dashboardData.totalGainLoss)}
-          change={dashboardData.totalGainLossPercentage}
-          changeType={dashboardData.totalGainLoss >= 0 ? 'positive' : 'negative'}
+          value={formatCurrency((portfolioSummary?.totalGainLoss || 0))}
         />
         <StatsCard
-          title="Active Stocks"
-          value={dashboardData.stockCount}
-        />
-        <StatsCard
-          title="Portfolios"
-          value={dashboardData.portfolioCount}
+          title="Number of Stocks"
+          value={(portfolioSummary?.stockCount || 0).toString()}
         />
       </div>
 
@@ -98,9 +112,24 @@ const Dashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {dashboardData.recentTransactions.map((transaction) => (
-                <TransactionRow key={transaction.id} transaction={transaction} />
-              ))}
+              {[...transactions, ...cashTransactions]
+                .sort((a, b) => {
+                  const dateA = 'transactionDateTime' in a 
+                    ? a.transactionDateTime.toDate().getTime()
+                    : a.transactionDate.toDate().getTime();
+                  const dateB = 'transactionDateTime' in b
+                    ? b.transactionDateTime.toDate().getTime()
+                    : b.transactionDate.toDate().getTime();
+                  return dateB - dateA;
+                })
+                .slice(0, 5)
+                .map(transaction => (
+                  'stockSymbol' in transaction ? (
+                    <TransactionRow key={transaction.id} transaction={transaction as Transaction} />
+                  ) : (
+                    <CashTransactionRow key={transaction.id} transaction={transaction as CashTransaction} />
+                  )
+                ))}
             </tbody>
           </table>
         </div>

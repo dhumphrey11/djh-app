@@ -52,13 +52,27 @@
   gap: 1.5rem;
 }
 
-.empty-state {
+.empty-state, .loading, .error-state {
   text-align: center;
   padding: 3rem;
   color: #6b7280;
 }
 
-.empty-state p {
+.empty-state p, .error-state p {
   font-size: 1.125rem;
   margin: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.error-state {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
 }

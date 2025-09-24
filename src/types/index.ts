@@ -1,44 +1,51 @@
-export interface Stock {
+import { Timestamp } from 'firebase/firestore';
+
+export interface Transaction {
   id: string;
-  symbol: string;
-  name: string;
+  stockSymbol: string;
+  numberOfShares: number;
+  transactionDateTime: Timestamp;
+  transactionType: 'Buy' | 'Sell';
+  price: number;
+}
+
+export interface CashTransaction {
+  id: string;
+  transactionDate: Timestamp;
+  amount: number;
+  transactionType: 'Deposit' | 'Withdrawal';
+  description?: string;
+}
+
+export interface CurrentStockData {
+  id: string;
+  stockSymbol: string;
+  stockName: string;
   currentPrice: number;
-  shares: number;
-  purchasePrice: number;
-  purchaseDate: string;
+}
+
+// Computed holding from transactions
+export interface StockHolding {
+  stockSymbol: string;
+  stockName: string;
+  currentPrice: number;
+  totalShares: number;
+  averageCost: number;
   totalValue: number;
   gainLoss: number;
   gainLossPercentage: number;
 }
 
-export interface Transaction {
-  id: string;
-  stockSymbol: string;
-  stockName: string;
-  type: 'buy' | 'sell';
-  shares: number;
-  pricePerShare: number;
-  totalAmount: number;
-  date: string;
-  notes?: string;
-}
-
-export interface Portfolio {
-  id: string;
-  name: string;
-  totalValue: number;
-  totalGainLoss: number;
-  totalGainLossPercentage: number;
-  stocks: Stock[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface DashboardData {
+export interface PortfolioSummary {
   totalPortfolioValue: number;
   totalGainLoss: number;
   totalGainLossPercentage: number;
-  portfolioCount: number;
   stockCount: number;
+  cashBalance: number;
+  availableCash: number;
+}
+
+export interface DashboardData extends PortfolioSummary {
   recentTransactions: Transaction[];
+  recentCashTransactions: CashTransaction[];
 }

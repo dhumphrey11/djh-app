@@ -1,9 +1,9 @@
 import React from 'react';
-import { Stock } from '../../types';
+import { StockHolding } from '../../types';
 import './StockCard.css';
 
 interface StockCardProps {
-  stock: Stock;
+  stock: StockHolding;
 }
 
 const StockCard: React.FC<StockCardProps> = ({ stock }) => {
@@ -14,7 +14,8 @@ const StockCard: React.FC<StockCardProps> = ({ stock }) => {
     }).format(amount);
   };
 
-  const formatPercentage = (percentage: number) => {
+  const formatPercentage = (percentage: number | undefined | null) => {
+    if (percentage === undefined || percentage === null) return '0.00%';
     const sign = percentage >= 0 ? '+' : '';
     return `${sign}${percentage.toFixed(2)}%`;
   };
@@ -29,8 +30,8 @@ const StockCard: React.FC<StockCardProps> = ({ stock }) => {
     <div className="stock-card">
       <div className="stock-header">
         <div>
-          <h3 className="stock-symbol">{stock.symbol}</h3>
-          <p className="stock-name">{stock.name}</p>
+          <h3 className="stock-symbol">{stock.stockSymbol}</h3>
+          <p className="stock-name">{stock.stockName}</p>
         </div>
         <div className="stock-price">
           {formatCurrency(stock.currentPrice)}
@@ -40,11 +41,11 @@ const StockCard: React.FC<StockCardProps> = ({ stock }) => {
       <div className="stock-details">
         <div className="detail-row">
           <span>Shares:</span>
-          <span>{stock.shares}</span>
+          <span>{stock.totalShares}</span>
         </div>
         <div className="detail-row">
           <span>Purchase Price:</span>
-          <span>{formatCurrency(stock.purchasePrice)}</span>
+          <span>{formatCurrency(stock.averageCost)}</span>
         </div>
         <div className="detail-row">
           <span>Total Value:</span>
