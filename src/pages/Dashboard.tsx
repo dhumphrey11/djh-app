@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StatsCard from '../components/dashboard/StatsCard';
 import TransactionRow from '../components/transactions/TransactionRow';
 import CashTransactionRow from '../components/transactions/CashTransactionRow';
+import PortfolioTable from '../components/portfolio/PortfolioTable';
 import { transactionService } from '../services/transactionService';
 import { stockDataService } from '../services/stockDataService';
 import { cashService } from '../services/cashService';
@@ -80,10 +81,6 @@ const Dashboard: React.FC = () => {
           value={formatCurrency((portfolioSummary?.totalPortfolioValue || 0))}
         />
         <StatsCard
-          title="Cash Balance"
-          value={formatCurrency((portfolioSummary?.cashBalance || 0))}
-        />
-        <StatsCard
           title="Available Cash"
           value={formatCurrency((portfolioSummary?.availableCash || 0))}
         />
@@ -95,6 +92,11 @@ const Dashboard: React.FC = () => {
           title="Number of Stocks"
           value={(portfolioSummary?.stockCount || 0).toString()}
         />
+      </div>
+
+      <div className="portfolio-holdings">
+        <h2>Portfolio Holdings</h2>
+        <PortfolioTable holdings={holdings} />
       </div>
 
       <div className="recent-transactions">

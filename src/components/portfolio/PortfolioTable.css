@@ -1,0 +1,22 @@
+.stock-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stock-symbol {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.stock-name {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.positive {
+  color: #059669;
+}
+
+.negative {
+  color: #dc2626;
+}

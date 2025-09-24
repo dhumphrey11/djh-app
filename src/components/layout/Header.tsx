@@ -19,9 +19,9 @@ const Header: React.FC = () => {
   };
 
   const navigationItems = [
-    { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/portfolio', label: 'Portfolio', icon: '💼' },
+    { path: '/', label: 'Portfolio', icon: '💼' },
     { path: '/transactions', label: 'Transactions', icon: '📈' },
+    { path: '/admin', label: 'Admin', icon: '⚙️' },
   ];
 
   return (
@@ -30,7 +30,7 @@ const Header: React.FC = () => {
         <Link to="/" className="logo" onClick={closeMobileMenu}>
           <div className="logo-content">
             <span className="logo-icon">💰</span>
-            <h1>DJH Portfolio Manager</h1>
+            <h1>MODA Portfolio Manager</h1>
           </div>
         </Link>
 
