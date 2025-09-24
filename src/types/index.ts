@@ -49,3 +49,24 @@ export interface DashboardData extends PortfolioSummary {
   recentTransactions: Transaction[];
   recentCashTransactions: CashTransaction[];
 }
+
+export interface StockRecommendation {
+  id: string;
+  stockSymbol: string;
+  stockName: string;
+  currentPrice: number;
+  targetPrice: number;
+  recommendationType: 'Buy' | 'Hold' | 'Sell';
+  confidence: number; // 0-100
+  suggestedInvestmentAmount: number;
+  recommendedHoldingPeriodDays: number;
+  reasoning: string;
+  createdAt: Timestamp;
+  executed: boolean;
+  status: 'pending' | 'executed' | 'expired' | 'rejected';
+  relatedTransactionId?: string; // If executed, link to the transaction
+  aiModel: string; // Identifier for the AI model that generated this recommendation
+  metadata?: {
+    [key: string]: any; // Additional AI-specific metadata
+  };
+}

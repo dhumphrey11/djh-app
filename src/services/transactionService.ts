@@ -84,22 +84,6 @@ export const transactionService = {
     } as Transaction));
   },
 
-  // Get transactions for a specific stock
-  async getTransactionsBySymbol(symbol: string): Promise<Transaction[]> {
-    const transactionsRef = collection(db, COLLECTION_NAME);
-    const q = query(
-      transactionsRef,
-      where('stockSymbol', '==', symbol),
-      orderBy('transactionDate', 'desc')
-    );
-    const snapshot = await getDocs(q);
-    
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Transaction));
-  },
-
   // Calculate current holdings from transactions
   async calculateHoldings(stockDataMap: Map<string, CurrentStockData>): Promise<StockHolding[]> {
     const transactions = await this.getTransactions();

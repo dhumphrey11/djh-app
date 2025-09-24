@@ -19,8 +19,9 @@ const Header: React.FC = () => {
   };
 
   const navigationItems = [
-    { path: '/', label: 'Portfolio', icon: '💼' },
+    { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/transactions', label: 'Transactions', icon: '📈' },
+    { path: '/recommendations', label: 'Recommendations', icon: '🎯' },
     { path: '/admin', label: 'Admin', icon: '⚙️' },
   ];
 

@@ -1,0 +1,104 @@
+.recommendation-row {
+  transition: background-color 0.2s;
+}
+
+.recommendation-row:hover {
+  background-color: #f9fafb;
+}
+
+.recommendation-row.executed {
+  background-color: #f0fdf4;
+}
+
+.recommendation-row.executed:hover {
+  background-color: #dcfce7;
+}
+
+.symbol-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-strategy {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.price-arrow {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.target-price {
+  color: #059669;
+  font-weight: 500;
+}
+
+.reasoning-cell {
+  max-width: 300px;
+  white-space: pre-wrap;
+  color: #4b5563;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.symbol {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.name {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.confidence {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.confidence.high {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.confidence.medium {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.confidence.low {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.status {
+  text-transform: capitalize;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status.executed {
+  color: #059669;
+}
+
+.status.pending {
+  color: #3b82f6;
+}
+
+.status.expired {
+  color: #6b7280;
+}
+
+.status.rejected {
+  color: #dc2626;
+}
+
+.date-cell {
+  white-space: nowrap;
+}

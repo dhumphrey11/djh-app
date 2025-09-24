@@ -17,25 +17,5 @@ export const stockDataService = {
     } catch (error) {
       throw new Error('Failed to fetch stock data');
     }
-  },
-
-  // Get current stock data for a specific symbol
-  async getStockData(symbol: string): Promise<CurrentStockData | null> {
-    try {
-      const stocksRef = collection(db, COLLECTION_NAME);
-      const snapshot = await getDocs(stocksRef);
-      const stockDoc = snapshot.docs.find(doc => doc.data().stockSymbol === symbol);
-      
-      if (!stockDoc) {
-        return null;
-      }
-
-      return {
-        id: stockDoc.id,
-        ...stockDoc.data()
-      } as CurrentStockData;
-    } catch (error) {
-      throw new Error('Failed to fetch stock data');
-    }
   }
 };
