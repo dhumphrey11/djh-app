@@ -19,7 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
       <footer className="footer">
         <div className="footer-content">
-          <p>&copy; 2025 DJH Portfolio Manager. Built with React & Firebase.</p>
+          <p>&copy; 2025 MODA Portfolio Manager. Built with React & Firebase.</p>
         </div>
       </footer>
     </div>

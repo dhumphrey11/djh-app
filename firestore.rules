@@ -45,5 +45,12 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       allow write: if isAdmin();
     }
+
+    // Portfolio history collection
+    match /portfolioHistory/{historyId} {
+      allow read: if isAuthenticated();
+      allow write: if false;  // Only allow updates through Cloud Functions
+      allow delete: if false;  // Never allow deletion
+    }
   }
 }

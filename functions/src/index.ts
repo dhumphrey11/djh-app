@@ -6,7 +6,8 @@ admin.initializeApp();
 const db = admin.firestore();
 
 export const updateStockPrices = functions.pubsub
-  .schedule('every 15 minutes')
+  .schedule('0 9 * * 1-5')
+  .timeZone('America/Denver') // Mountain Time
   .onRun(async (context) => {
     const executionId = Date.now().toString();
     const startTime = admin.firestore.Timestamp.now();

@@ -29,6 +29,7 @@ const Dashboard: React.FC = () => {
       try {
         setIsLoading(true);
         // Load all data in parallel
+        console.log('Loading dashboard data...');
         const [stockData, recentStockTx, recentCashTx] = await Promise.all([
           stockDataService.getAllStockData(),
           transactionService.getRecentTransactions(5),
@@ -37,7 +38,7 @@ const Dashboard: React.FC = () => {
 
         // Create a map of stock data for easy lookup
         const stockDataMap = new Map<string, CurrentStockData>();
-        stockData.forEach(stock => stockDataMap.set(stock.stockSymbol, stock));
+        stockData.forEach((stock: CurrentStockData) => stockDataMap.set(stock.stockSymbol, stock));
 
         // Get portfolio summary (includes cash balance)
         const summary = await transactionService.getPortfolioSummary(stockDataMap);

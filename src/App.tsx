@@ -7,6 +7,7 @@ import Admin from './pages/Admin';
 import Recommendations from './pages/Recommendations';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import AdminRoute from './components/auth/AdminRoute';
 import './App.css';
 
 // Protected Route component
@@ -39,7 +40,7 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/transactions" element={<Transactions />} />
                     <Route path="/recommendations" element={<Recommendations />} />
-                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>
