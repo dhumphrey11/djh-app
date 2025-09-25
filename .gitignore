@@ -32,3 +32,7 @@ yarn-error.log*
 firebase-debug.log
 firestore-debug.log
 
+# Firebase Service Account Keys (NEVER commit these!)
+*firebase-adminsdk*.json
+*service-account*.json
+
