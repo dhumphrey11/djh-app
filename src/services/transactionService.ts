@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, query, orderBy, limit, where, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { Transaction, CurrentStockData, StockHolding, PortfolioSummary } from '../types';
 import { cashService } from './cashService';
@@ -21,10 +21,10 @@ export const transactionService = {
     try {
       const transactionsRef = collection(db, COLLECTION_NAME);
       console.log('Querying collection:', COLLECTION_NAME);
-      
+
       // First try without orderBy to see all documents
       const snapshot = await getDocs(collection(db, COLLECTION_NAME));
-      
+
       // Log the raw data of the first document to see its structure
       if (!snapshot.empty) {
         const firstDoc = snapshot.docs[0];
@@ -34,11 +34,11 @@ export const transactionService = {
           fields: Object.keys(firstDoc.data())
         });
       }
-      
+
       // Now query with ordering
       const q = query(transactionsRef, orderBy('transactionDateTime', 'asc'));
       const orderedSnapshot = await getDocs(q);
-      
+
       console.log('Firestore ordered response:', {
         empty: orderedSnapshot.empty,
         size: orderedSnapshot.size,
@@ -47,7 +47,7 @@ export const transactionService = {
           data: doc.data()
         }))
       });
-      
+
       const transactions = orderedSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
@@ -59,7 +59,7 @@ export const transactionService = {
           price: data.price
         } as Transaction;
       });
-      
+
       console.log('Processed transactions:', transactions);
       return transactions;
     } catch (error) {
@@ -77,7 +77,7 @@ export const transactionService = {
       limit(limitCount)
     );
     const snapshot = await getDocs(q);
-    
+
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -96,7 +96,7 @@ export const transactionService = {
     transactions.forEach(transaction => {
       const { stockSymbol, numberOfShares, price, transactionType } = transaction;
       const current = holdingsMap.get(stockSymbol) || { totalShares: 0, totalCost: 0 };
-      
+
       if (transactionType === 'Buy') {
         current.totalShares += numberOfShares;
         current.totalCost += numberOfShares * price;
@@ -141,12 +141,12 @@ export const transactionService = {
   async getPortfolioSummary(stockDataMap: Map<string, CurrentStockData>): Promise<PortfolioSummary> {
     const holdings = await this.calculateHoldings(stockDataMap);
     const cashBalance = await cashService.calculateCashBalance();
-    
+
     // Calculate total portfolio value and other metrics
     const totalPortfolioValue = holdings.reduce((sum, holding) => sum + holding.totalValue, 0);
     const totalGainLoss = holdings.reduce((sum, holding) => sum + holding.gainLoss, 0);
-    const totalGainLossPercentage = totalPortfolioValue > 0 
-      ? (totalGainLoss / (totalPortfolioValue - totalGainLoss)) * 100 
+    const totalGainLossPercentage = totalPortfolioValue > 0
+      ? (totalGainLoss / (totalPortfolioValue - totalGainLoss)) * 100
       : 0;
 
     // Calculate available cash by subtracting pending buy orders

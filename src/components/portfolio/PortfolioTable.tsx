@@ -37,7 +37,6 @@ const PortfolioTable: React.FC<PortfolioTableProps> = ({ holdings }) => {
         </thead>
         <tbody>
           {holdings.map((holding) => {
-            const marketValue = holding.totalValue;
             const gainLoss = holding.gainLoss;
             const percentChange = holding.gainLossPercentage;
 

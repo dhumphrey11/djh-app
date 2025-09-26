@@ -12,42 +12,20 @@ const Recommendations: React.FC = () => {
   const [confidenceThreshold, setConfidenceThreshold] = useState(0);
 
   useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        setLoading(true);
+        const data = await recommendationService.getActiveRecommendations();
+        setRecommendations(data);
+      } catch (err) {
+        setError('Failed to load recommendations');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadRecommendations();
   }, [statusFilter, confidenceThreshold]);
-
-  const loadRecommendations = async () => {
-    try {
-      setLoading(true);
-      let fetchedRecommendations: StockRecommendation[];
-
-      if (statusFilter === 'all') {
-        if (confidenceThreshold > 0) {
-          fetchedRecommendations = await recommendationService.getRecommendationsByConfidence(confidenceThreshold);
-        } else {
-          fetchedRecommendations = await recommendationService.getActiveRecommendations();
-        }
-      } else {
-        fetchedRecommendations = await recommendationService.getRecommendationsByStatus(statusFilter);
-      }
-
-      setRecommendations(fetchedRecommendations);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load recommendations');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleStatusUpdate = async (id: string, newStatus: StockRecommendation['status']) => {
-    try {
-      await recommendationService.updateRecommendationStatus(id, newStatus);
-      // Reload recommendations to get updated list
-      loadRecommendations();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update recommendation status');
-    }
-  };
 
   if (loading) {
     return <div className="loading">Loading recommendations...</div>;
@@ -109,8 +87,8 @@ const Recommendations: React.FC = () => {
           </thead>
           <tbody>
             {recommendations.map(recommendation => (
-              <RecommendationRow 
-                key={recommendation.id} 
+              <RecommendationRow
+                key={recommendation.id}
                 recommendation={recommendation}
               />
             ))}

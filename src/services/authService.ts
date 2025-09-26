@@ -1,12 +1,11 @@
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
 import { app } from '../firebase/config';
-import { userService } from './userService';
 
 const auth = getAuth(app);
 
