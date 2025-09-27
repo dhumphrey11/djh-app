@@ -52,5 +52,12 @@ service cloud.firestore {
       allow write: if false;  // Only allow updates through Cloud Functions
       allow delete: if false;  // Never allow deletion
     }
+
+    // Function logs collection (admin only)
+    match /functionLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;  // Only Cloud Functions can write logs
+      allow delete: if false;  // Never allow deletion
+    }
   }
 }

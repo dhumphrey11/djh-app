@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { useAuth } from '../context/AuthContext';
 import './Admin.css';
 
 interface FunctionLog {
@@ -20,6 +21,7 @@ interface FunctionLog {
 }
 
 const Admin: React.FC = () => {
+  const { currentUser } = useAuth();
   const [lastExecution, setLastExecution] = useState<FunctionLog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,9 @@ const Admin: React.FC = () => {
   useEffect(() => {
     const fetchLastExecution = async () => {
       try {
+        console.log('Current user:', currentUser);
+        console.log('User role:', currentUser?.role);
+        
         const q = query(
           collection(db, 'functionLogs'),
           orderBy('startTime', 'desc'),
@@ -43,7 +48,17 @@ const Admin: React.FC = () => {
         }
         setLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Admin page error:', err);
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        
+        // Provide more specific error messages
+        if (errorMessage.includes('permission-denied')) {
+          setError('Access denied. Please ensure you have admin permissions and try refreshing the page.');
+        } else if (errorMessage.includes('Failed to get document')) {
+          setError('Unable to access function logs. Check Firestore rules and user permissions.');
+        } else {
+          setError(errorMessage);
+        }
         setLoading(false);
       }
     };
@@ -56,11 +71,34 @@ const Admin: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="admin-container">
+        <h2>Admin Dashboard</h2>
+        <p>Loading admin data...</p>
+        <p>User: {currentUser?.email} (Role: {currentUser?.role})</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div className="admin-container">
+        <h2>Admin Dashboard</h2>
+        <div className="error">
+          <h3>Error accessing admin data:</h3>
+          <p>{error}</p>
+          <div style={{ marginTop: '20px', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
+            <h4>Debug Information:</h4>
+            <p><strong>Current User:</strong> {currentUser?.email || 'Not logged in'}</p>
+            <p><strong>User Role:</strong> {currentUser?.role || 'No role assigned'}</p>
+            <p><strong>User ID:</strong> {currentUser?.id || 'No ID'}</p>
+          </div>
+          <p style={{ marginTop: '10px' }}>
+            If you should have admin access, try logging out and back in, or contact support.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (!lastExecution) {
