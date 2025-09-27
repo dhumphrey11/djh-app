@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
       try {
         setIsLoading(true);
         // Load all data in parallel
-        console.log('Loading dashboard data...');
+        console.log('Loading dashboard...');
         const [stockData, recentStockTx, recentCashTx] = await Promise.all([
           stockDataService.getAllStockData(),
           transactionService.getRecentTransactions(5),
@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
         setPortfolioSummary(summary);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
       } finally {
         setIsLoading(false);
       }
