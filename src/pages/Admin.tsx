@@ -68,7 +68,7 @@ const Admin: React.FC = () => {
     // Refresh every minute
     const interval = setInterval(fetchLastExecution, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [currentUser]);
 
   if (loading) {
     return (
