@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
     <div className="Dashboard">
       <div className="Dashboard-header">
         <h1>Portfolio Dashboard</h1>
-        <p>Welcome back! Here's your portfolio overview.</p>
+        <p>Welcome back! Here's your portfolio overview and recent transactions.</p>
       </div>
 
       <div className="stats-cards">
