@@ -12,9 +12,10 @@ const SecondaryNav: React.FC = () => {
   };
 
   const baseNavigationItems = [
-    { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/transactions', label: 'Transactions', icon: '📈' },
+    { path: '/', label: 'Dashboard', icon: '🏠' },
     { path: '/recommendations', label: 'Recommendations', icon: '🎯' },
+    { path: '/performance', label: 'Performance', icon: '📊' },
+    { path: '/transactions', label: 'Transactions', icon: '📋' },
   ];
 
   const navigationItems = currentUser?.role === 'admin' 

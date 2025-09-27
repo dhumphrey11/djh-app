@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import StatsCard from '../components/dashboard/StatsCard';
 import TransactionRow from '../components/transactions/TransactionRow';
 import CashTransactionRow from '../components/transactions/CashTransactionRow';
 import PortfolioTable from '../components/portfolio/PortfolioTable';
-import { transactionService } from '../services/transactionService';
-import { stockDataService } from '../services/stockDataService';
-import { cashService } from '../services/cashService';
-import { StockHolding, Transaction, CurrentStockData, CashTransaction, PortfolioSummary } from '../types';
+import { useStockData } from '../hooks/useStockData';
+import { usePortfolioData } from '../hooks/usePortfolioData';
+import { useTransactions } from '../hooks/useTransactions';
+import { useCashTransactions } from '../hooks/useCashTransactions';
+import { Transaction, CashTransaction } from '../types';
 import './Dashboard.css';
 
 const formatCurrency = (amount: number): string => {
@@ -17,47 +18,17 @@ const formatCurrency = (amount: number): string => {
 };
 
 const Dashboard: React.FC = () => {
-  const [holdings, setHoldings] = useState<StockHolding[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>([]);
-  const [portfolioSummary, setPortfolioSummary] = useState<PortfolioSummary | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use custom hooks for data fetching
+  const { stockDataMap, isLoading: stockLoading, error: stockError } = useStockData();
+  const { holdings, portfolioSummary, isLoading: portfolioLoading, error: portfolioError } = usePortfolioData({ stockDataMap });
+  const { transactions, isLoading: transactionLoading, error: transactionError } = useTransactions(5);
+  const { cashTransactions, isLoading: cashLoading, error: cashError } = useCashTransactions(5);
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setIsLoading(true);
-        // Load all data in parallel
-        console.log('Loading dashboard...');
-        const [stockData, recentStockTx, recentCashTx] = await Promise.all([
-          stockDataService.getAllStockData(),
-          transactionService.getRecentTransactions(5),
-          cashService.getRecentCashTransactions(5)
-        ]);
-
-        // Create a map of stock data for easy lookup
-        const stockDataMap = new Map<string, CurrentStockData>();
-        stockData.forEach((stock: CurrentStockData) => stockDataMap.set(stock.stockSymbol, stock));
-
-        // Get portfolio summary (includes cash balance)
-        const summary = await transactionService.getPortfolioSummary(stockDataMap);
-        const currentHoldings = await transactionService.calculateHoldings(stockDataMap);
-
-        setHoldings(currentHoldings);
-        setTransactions(recentStockTx);
-        setCashTransactions(recentCashTx);
-        setPortfolioSummary(summary);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadDashboardData();
-  }, []);
+  // Combine loading states
+  const isLoading = stockLoading || portfolioLoading || transactionLoading || cashLoading;
+  
+  // Combine errors
+  const error = stockError || portfolioError || transactionError || cashError;
 
 
 

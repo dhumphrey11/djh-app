@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
+import Performance from './pages/Performance';
 import Admin from './pages/Admin';
 import Recommendations from './pages/Recommendations';
 import Login from './pages/Login';
@@ -39,6 +40,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/transactions" element={<Transactions />} />
+                    <Route path="/performance" element={<Performance />} />
                     <Route path="/recommendations" element={<Recommendations />} />
                     <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
                   </Routes>

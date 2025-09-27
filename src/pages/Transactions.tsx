@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Transaction, CashTransaction } from '../types';
 import TransactionRow from '../components/transactions/TransactionRow';
 import CashTransactionRow from '../components/transactions/CashTransactionRow';
-import { transactionService } from '../services/transactionService';
-import { cashService } from '../services/cashService';
+import { useTransactions } from '../hooks/useTransactions';
+import { useCashTransactions } from '../hooks/useCashTransactions';
 import './Transactions.css';
 
 const Transactions: React.FC = () => {
-  const [stockTransactions, setStockTransactions] = useState<Transaction[]>([]);
-  const [cashTransactions, setCashTransactions] = useState<CashTransaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use custom hooks for data fetching
+  const { transactions: stockTransactions, isLoading: stockLoading, error: stockError } = useTransactions();
+  const { cashTransactions, isLoading: cashLoading, error: cashError } = useCashTransactions();
+
+  // Combine loading states and errors
+  const isLoading = stockLoading || cashLoading;
+  const error = stockError || cashError;
   
   // Helper function to get the date from either type of transaction
   const getTransactionDate = (tx: Transaction | CashTransaction) => {
@@ -20,35 +23,14 @@ const Transactions: React.FC = () => {
     return tx.transactionDate.toDate();
   };
 
-  // Combine and sort transactions by date
-  const allTransactions = [...stockTransactions, ...cashTransactions].sort((a, b) => {
-    const dateA = getTransactionDate(a);
-    const dateB = getTransactionDate(b);
-    return dateB.getTime() - dateA.getTime(); // Sort descending (newest first)
-  });
-
-  useEffect(() => {
-    const loadTransactions = async () => {
-      try {
-        setIsLoading(true);
-        const [stockTx, cashTx] = await Promise.all([
-          transactionService.getTransactions(),
-          cashService.getCashTransactions()
-        ]);
-        console.log('Loaded stock transactions:', stockTx);
-        console.log('Loaded cash transactions:', cashTx);
-        setStockTransactions(stockTx);
-        setCashTransactions(cashTx);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load transactions');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadTransactions();
-  }, []);
+  // Combine and sort transactions by date using useMemo for performance
+  const allTransactions = useMemo(() => {
+    return [...stockTransactions, ...cashTransactions].sort((a, b) => {
+      const dateA = getTransactionDate(a);
+      const dateB = getTransactionDate(b);
+      return dateB.getTime() - dateA.getTime(); // Sort descending (newest first)
+    });
+  }, [stockTransactions, cashTransactions]);
 
   if (isLoading) {
     return <div className="loading">Loading transactions...</div>;

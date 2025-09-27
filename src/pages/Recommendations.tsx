@@ -1,33 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StockRecommendation } from '../types';
-import { recommendationService } from '../services/recommendationService';
+import { useRecommendations } from '../hooks/useRecommendations';
 import RecommendationRow from '../components/recommendations/RecommendationRow';
 import './Recommendations.css';
 
 const Recommendations: React.FC = () => {
-  const [recommendations, setRecommendations] = useState<StockRecommendation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StockRecommendation['status'] | 'all'>('all');
   const [confidenceThreshold, setConfidenceThreshold] = useState(0);
 
-  useEffect(() => {
-    const loadRecommendations = async () => {
-      try {
-        setLoading(true);
-        const data = await recommendationService.getActiveRecommendations();
-        setRecommendations(data);
-      } catch (err) {
-        setError('Failed to load recommendations');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use custom hook for recommendations with filtering
+  const { recommendations, isLoading, error } = useRecommendations({ 
+    statusFilter, 
+    confidenceThreshold 
+  });
 
-    loadRecommendations();
-  }, [statusFilter, confidenceThreshold]);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="loading">Loading recommendations...</div>;
   }
 
