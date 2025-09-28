@@ -1,10 +1,8 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
 import SymbolsManagement from '../components/symbols/SymbolsManagement';
 import './Symbols.css';
 
 const Symbols: React.FC = () => {
-  const { currentUser } = useAuth();
 
   return (
     <div className="symbols-container">

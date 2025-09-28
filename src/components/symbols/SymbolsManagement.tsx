@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useActiveSymbols } from '../../hooks/useActiveSymbols';
 import { useUniverseSymbols } from '../../hooks/useUniverseSymbols';
 import { useAuth } from '../../context/AuthContext';
-import { ActiveSymbol, UniverseSymbol } from '../../types';
 import './SymbolsManagement.css';
 
 interface SymbolsManagementProps {}
@@ -25,7 +24,6 @@ const SymbolsManagement: React.FC<SymbolsManagementProps> = () => {
     loading: universeLoading,
     error: universeError,
     addUniverseSymbol,
-    updateUniverseSymbol,
     deleteUniverseSymbol,
     toggleSymbolStatus,
     updateSymbolPriority,
@@ -46,18 +44,18 @@ const SymbolsManagement: React.FC<SymbolsManagementProps> = () => {
     notes: ''
   });
 
-  useEffect(() => {
-    loadStatistics();
-  }, [universeSymbols]);
-
-  const loadStatistics = async () => {
+  const loadStatistics = useCallback(async () => {
     try {
       const stats = await getStatistics();
       setStatistics(stats);
     } catch (error) {
       console.error('Error loading statistics:', error);
     }
-  };
+  }, [getStatistics]);
+
+  useEffect(() => {
+    loadStatistics();
+  }, [universeSymbols, loadStatistics]);
 
   const handleSyncActiveSymbols = async () => {
     try {
