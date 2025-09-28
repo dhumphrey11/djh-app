@@ -2,7 +2,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { CurrentStockData } from '../types';
 
-const COLLECTION_NAME = 'currentStockData';
+const COLLECTION_NAME = 'react_currentStockData';
 
 export const stockDataService = {
   // Fetch all current stock data

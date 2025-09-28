@@ -3,7 +3,7 @@ import { db } from '../firebase/config';
 import { StockRecommendation } from '../types';
 
 class RecommendationService {
-  private readonly collectionName = 'recommendations';
+  private readonly collectionName = 'react_recommendations';
 
   // Get all active (non-expired) recommendations
   async getActiveRecommendations(): Promise<StockRecommendation[]> {

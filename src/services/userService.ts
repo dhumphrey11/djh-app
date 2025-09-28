@@ -10,7 +10,7 @@ import { db } from '../firebase/config';
 import { User } from '../types';
 
 class UserService {
-  private readonly collectionName = 'users';
+  private readonly collectionName = 'react_users';
 
   // Create a new user document
   async createUser(userId: string, email: string, role: User['role'] = 'user'): Promise<void> {

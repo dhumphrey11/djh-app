@@ -13,7 +13,7 @@ export const updateStockPrices = functions.pubsub
     const startTime = admin.firestore.Timestamp.now();
     
     try {
-      await db.collection('functionLogs').doc(executionId).set({
+      await db.collection('react_functionLogs').doc(executionId).set({
         functionName: 'updateStockPrices',
         startTime,
         status: 'started',
@@ -22,7 +22,7 @@ export const updateStockPrices = functions.pubsub
       });
 
       // Get all unique stock symbols from transactions
-      const transactionsSnapshot = await db.collection('transactions').get();
+      const transactionsSnapshot = await db.collection('react_transactions').get();
       const stockSymbols = new Set<string>();
       
       transactionsSnapshot.docs.forEach(doc => {
@@ -39,7 +39,7 @@ export const updateStockPrices = functions.pubsub
           
           // Find existing document for this stock
           const stockQuerySnapshot = await db
-            .collection('currentStockData')
+            .collection('react_currentStockData')
             .where('stockSymbol', '==', symbol)
             .get();
 
@@ -52,7 +52,7 @@ export const updateStockPrices = functions.pubsub
 
           if (stockQuerySnapshot.empty) {
             // Create new document if it doesn't exist
-            await db.collection('currentStockData').add(stockData);
+            await db.collection('react_currentStockData').add(stockData);
           } else {
             // Update existing document
             await stockQuerySnapshot.docs[0].ref.update(stockData);
@@ -68,7 +68,7 @@ export const updateStockPrices = functions.pubsub
       functions.logger.info('Successfully updated all stock prices');
 
       // Update log with success status
-      await db.collection('functionLogs').doc(executionId).update({
+      await db.collection('react_functionLogs').doc(executionId).update({
         endTime: admin.firestore.Timestamp.now(),
         status: 'completed',
         updatedSymbols: Array.from(stockSymbols)
@@ -81,7 +81,7 @@ export const updateStockPrices = functions.pubsub
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       // Update log with error status
-      await db.collection('functionLogs').doc(executionId).update({
+      await db.collection('react_functionLogs').doc(executionId).update({
         endTime: admin.firestore.Timestamp.now(),
         status: 'error',
         error: errorMessage

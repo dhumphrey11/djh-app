@@ -6,6 +6,7 @@ import Transactions from './pages/Transactions';
 import Performance from './pages/Performance';
 import Admin from './pages/Admin';
 import Recommendations from './pages/Recommendations';
+import Symbols from './pages/Symbols';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AdminRoute from './components/auth/AdminRoute';
@@ -42,6 +43,7 @@ function App() {
                     <Route path="/transactions" element={<Transactions />} />
                     <Route path="/performance" element={<Performance />} />
                     <Route path="/recommendations" element={<Recommendations />} />
+                    <Route path="/symbols" element={<Symbols />} />
                     <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
                   </Routes>
                 </Layout>

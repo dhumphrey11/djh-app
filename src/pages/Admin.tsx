@@ -58,13 +58,14 @@ const Admin: React.FC = () => {
         console.log('Current user:', currentUser);
         console.log('User role:', currentUser?.role);
         
-        const q = query(
-          collection(db, 'functionLogs'),
+        // Fetch function logs
+        const logsQuery = query(
+          collection(db, 'react_functionLogs'),
           orderBy('startTime', 'desc'),
-          limit(1)
+          limit(10)
         );
 
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(logsQuery);
         if (!querySnapshot.empty) {
           const doc = querySnapshot.docs[0];
           setLastExecution({
@@ -147,6 +148,35 @@ const Admin: React.FC = () => {
   }, [stockLoading, transactionLoading, cashLoading, recommendationLoading, 
       transactions, cashTransactions, stockData, allRecommendations, lastExecution]);
 
+  // Utility functions
+  const formatDate = (timestamp: { seconds: number; nanoseconds: number }) => {
+    return new Date(timestamp.seconds * 1000).toLocaleString();
+  };
+
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const getHealthStatusColor = (health: 'healthy' | 'warning' | 'critical') => {
+    switch (health) {
+      case 'healthy': return '#4CAF50';
+      case 'warning': return '#FF9800';
+      case 'critical': return '#f44336';
+      default: return '#757575';
+    }
+  };
+
+  const getDuration = () => {
+    if (!lastExecution?.endTime) return 'In progress...';
+    const durationMs = 
+      (lastExecution.endTime.seconds - lastExecution.startTime.seconds) * 1000 +
+      (lastExecution.endTime.nanoseconds - lastExecution.startTime.nanoseconds) / 1000000;
+    return `${durationMs.toFixed(2)} ms`;
+  };
+
   if (loading || stockLoading || transactionLoading || cashLoading || recommendationLoading) {
     return (
       <div className="admin-container">
@@ -185,36 +215,56 @@ const Admin: React.FC = () => {
   }
 
   if (!lastExecution) {
-    return <div>No function executions found</div>;
+    // Still render the admin page with symbols management even if no function logs exist
+    return (
+      <div className="admin-container">
+        <div className="admin-header">
+          <h2>System Administration Dashboard</h2>
+          <div className="admin-user-info">
+            <span>Logged in as: <strong>{currentUser?.email}</strong></span>
+            <span className="user-role">Role: {currentUser?.role}</span>
+          </div>
+        </div>
+
+        <div className="admin-section">
+          <h3>Function Logs</h3>
+          <div className="info">
+            <p>No function executions found. This is normal for a new system.</p>
+          </div>
+        </div>
+
+        {/* System Statistics */}
+        {systemStats && (
+          <div className="admin-section">
+            <h3>System Health Overview</h3>
+            <div className="system-health-card">
+              <div 
+                className="health-indicator"
+                style={{ 
+                  backgroundColor: getHealthStatusColor(systemStats.systemHealth),
+                  color: 'white',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  marginBottom: '15px'
+                }}
+              >
+                <span className="health-status">{systemStats.systemHealth.toUpperCase()}</span>
+              </div>
+              <div className="health-details">
+                <p><strong>Last Data Update:</strong> {systemStats.lastDataUpdate.toLocaleString()}</p>
+                <p><strong>Estimated Database Size:</strong> {systemStats.databaseSize}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="admin-footer" style={{ marginTop: '40px', padding: '20px', background: '#f8f9fa', borderRadius: '8px', textAlign: 'center' }}>
+          <p><small>Dashboard auto-refreshes every minute • Last refresh: {new Date().toLocaleTimeString()}</small></p>
+        </div>
+      </div>
+    );
   }
-
-  const formatDate = (timestamp: { seconds: number; nanoseconds: number }) => {
-    return new Date(timestamp.seconds * 1000).toLocaleString();
-  };
-
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
-  const getHealthStatusColor = (health: 'healthy' | 'warning' | 'critical') => {
-    switch (health) {
-      case 'healthy': return '#4CAF50';
-      case 'warning': return '#FF9800';
-      case 'critical': return '#f44336';
-      default: return '#757575';
-    }
-  };
-
-  const getDuration = () => {
-    if (!lastExecution.endTime) return 'In progress...';
-    const durationMs = 
-      (lastExecution.endTime.seconds - lastExecution.startTime.seconds) * 1000 +
-      (lastExecution.endTime.nanoseconds - lastExecution.startTime.nanoseconds) / 1000000;
-    return `${durationMs.toFixed(2)} ms`;
-  };
 
   return (
     <div className="admin-container">

@@ -9,39 +9,39 @@ service cloud.firestore {
     // Helper function to check if user has admin role
     function isAdmin() {
       return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+        exists(/databases/$(database)/documents/react_users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/react_users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // Recommendations collection
-    match /recommendations/{recommendationId} {
+    match /react_recommendations/{recommendationId} {
       allow read: if isAuthenticated();
       allow create, update: if isAdmin();
       allow delete: if false;  // Never allow deletion
     }
 
     // Transactions collection
-    match /transactions/{transactionId} {
+    match /react_transactions/{transactionId} {
       allow read: if isAuthenticated();
       allow create, update: if isAdmin();
       allow delete: if false;  // Never allow deletion
     }
 
     // Cash transactions collection
-    match /cashTransactions/{transactionId} {
+    match /react_cashTransactions/{transactionId} {
       allow read: if isAuthenticated();
       allow create, update: if isAdmin();
       allow delete: if false;  // Never allow deletion
     }
 
     // Current stock data collection
-    match /currentStockData/{stockId} {
+    match /react_currentStockData/{stockId} {
       allow read: if isAuthenticated();
       allow write: if false;  // Only allow updates through Cloud Functions
     }
 
     // Users collection
-    match /users/{userId} {
+    match /react_users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       allow write: if isAdmin();
     }
@@ -54,10 +54,23 @@ service cloud.firestore {
     }
 
     // Function logs collection (admin only)
-    match /functionLogs/{logId} {
+    match /react_functionLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;  // Only Cloud Functions can write logs
       allow delete: if false;  // Never allow deletion
+    }
+
+    // Active symbols collection
+    match /react_activeSymbols/{symbolId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Universe symbols collection (admin management)
+    match /react_universeSymbols/{symbolId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
     }
   }
 }

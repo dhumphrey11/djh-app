@@ -3,7 +3,7 @@ import { db } from '../firebase/config';
 import { Transaction, CurrentStockData, StockHolding, PortfolioSummary } from '../types';
 import { cashService } from './cashService';
 
-const COLLECTION_NAME = 'transactions';
+const COLLECTION_NAME = 'react_transactions';
 
 export const transactionService = {
   // Add a new transaction

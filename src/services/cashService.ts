@@ -2,7 +2,7 @@ import { collection, addDoc, getDocs, query, orderBy, limit, Timestamp } from 'f
 import { db } from '../firebase/config';
 import { CashTransaction } from '../types';
 
-const COLLECTION_NAME = 'cashTransactions';
+const COLLECTION_NAME = 'react_cashTransactions';
 
 export const cashService = {
   // Add a new cash transaction

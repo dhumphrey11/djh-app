@@ -78,3 +78,31 @@ export interface StockRecommendation {
     [key: string]: any; // Additional AI-specific metadata
   };
 }
+
+// Active symbols that are currently being monitored
+export interface ActiveSymbol {
+  id?: string;
+  symbol: string;
+  name?: string;
+  source: 'portfolio' | 'recommendation' | 'manual';
+  isActive: boolean;
+  addedAt: Timestamp;
+  lastUpdated: Timestamp;
+  portfolioQuantity?: number;
+  recommendationStatus?: string;
+}
+
+// Universe of all symbols that can be monitored
+export interface UniverseSymbol {
+  id?: string;
+  symbol: string;
+  name: string;
+  sector?: string;
+  industry?: string;
+  marketCap?: number;
+  isActive: boolean;
+  addedAt: Timestamp;
+  lastUpdated: Timestamp;
+  notes?: string;
+  priority: 'high' | 'medium' | 'low';
+}
